@@ -1,0 +1,33 @@
+name: Windows installer
+on:
+  workflow_dispatch:
+  push:
+    tags: ['v*']
+jobs:
+  build:
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ilammy/msvc-dev-cmd@v1
+      - uses: jurplel/install-qt-action@v4
+        with:
+          version: '6.5.3'
+          arch: win64_msvc2019_64
+          cache: true
+      - name: Download VLC 3.0.20 (win64 zip)
+        shell: pwsh
+        run: |
+          Invoke-WebRequest https://get.videolan.org/vlc/3.0.20/win64/vlc-3.0.20-win64.zip -OutFile vlc.zip
+          Expand-Archive vlc.zip -DestinationPath vlc
+      - name: Install Ninja + Inno Setup
+        run: choco install ninja innosetup -y --no-progress
+      - name: Build, deploy, package
+        shell: pwsh
+        run: |
+          ./packaging/windows/build-windows.ps1 -QtDir "$env:QT_ROOT_DIR" -VlcDir "$PWD\vlc\vlc-3.0.20" -Version "0.1.0"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Lumina-Windows
+          path: |
+            dist/Lumina-*-Setup.exe
+            dist/Lumina-portable.zip

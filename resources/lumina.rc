@@ -1,0 +1,2 @@
+// Windows application icon. Qt looks the icon up by the name IDI_ICON1.
+IDI_ICON1 ICON "lumina.ico"

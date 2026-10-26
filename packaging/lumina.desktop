@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Lumina
+Comment=Media player
+Exec=lumina %U
+Icon=lumina
+Terminal=false
+Categories=AudioVideo;Video;Player;
+MimeType=video/mp4;video/x-matroska;video/webm;video/x-msvideo;video/quicktime;audio/mpeg;audio/flac;
