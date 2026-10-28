@@ -5,6 +5,14 @@
 #include <QSGTransformNode>
 #include <QMatrix4x4>
 #include <QRegularExpression>
+#include <QSize>
+#include <QImage>
+#include <QRectF>
+#include <QSizeF>
+#include <QQuickItem>
+#include <QObject>
+#include <QString>
+#include <QLatin1String>
 #include <cmath>
 
 namespace lumina {
@@ -19,6 +27,8 @@ VideoItem::VideoItem(QQuickItem *parent) : QQuickItem(parent)
 {
     setFlag(ItemHasContents, true);
     setClip(true);
+    m_trailing.setSingleShot(true);
+    connect(&m_trailing, &QTimer::timeout, this, [this] { m_throttle.restart(); update(); });
 }
 
 VideoItem::~VideoItem() = default;
@@ -26,15 +36,15 @@ VideoItem::~VideoItem() = default;
 void VideoItem::setSource(VideoFrameSource *s)
 {
     if (s == m_source) return;
-    QObject::disconnect(m_frameConn);
-    QObject::disconnect(m_hasFrameConn);
+    if (m_source)
+        m_source->disconnect(this);                              // every connection to the old source, not just two of them
     m_source = s;
     m_lastFrame.reset();
     if (m_source) {
-        m_frameConn = connect(m_source, &VideoFrameSource::frameAvailable, this, [this] { update(); });
+        connect(m_source, &VideoFrameSource::frameAvailable, this, &VideoItem::requestUpdate);
         connect(m_source, &VideoFrameSource::videoSizeChanged, this, [this] { emit layoutChanged(); update(); });
         connect(m_source, &VideoFrameSource::naturalAspectChanged, this, [this] { emit layoutChanged(); update(); });
-        m_hasFrameConn = connect(m_source, &VideoFrameSource::hasFrameChanged, this, [this] { emit hasFrameChanged(); update(); });
+        connect(m_source, &VideoFrameSource::hasFrameChanged, this, [this] { emit hasFrameChanged(); update(); });
     }
     emit sourceChanged();
     emit hasFrameChanged();
@@ -54,6 +64,39 @@ LUMINA_SETTER(setPanX, m_panX, double)
 LUMINA_SETTER(setPanY, m_panY, double)
 LUMINA_SETTER(setFlipHorizontal, m_flipH, bool)
 #undef LUMINA_SETTER
+
+void VideoItem::setMaxFps(int fps)
+{
+    fps = qBound(0, fps, 240);
+    if (fps == m_maxFps) return;
+    m_maxFps = fps;
+    emit maxFpsChanged();
+}
+
+// A decoded frame arrived. Skip the repaint when nobody would see it (hidden item, minimised or hidden window):
+// update() on a hidden item still wakes the render loop, which at 60 fps is pure waste.
+void VideoItem::requestUpdate()
+{
+    QQuickWindow *w = window();
+    if (!w || !isVisible() || !w->isVisible() || w->visibility() == QWindow::Minimized) return;
+    if (m_maxFps > 0) {
+        const qint64 gap = 1000 / m_maxFps;
+        if (m_throttle.isValid() && m_throttle.elapsed() < gap) {
+            if (!m_trailing.isActive()) m_trailing.start(int(gap - m_throttle.elapsed()) + 1);
+            return;
+        }
+        m_throttle.restart();
+    }
+    update();
+}
+
+void VideoItem::itemChange(ItemChange change, const ItemChangeData &value)
+{
+    QQuickItem::itemChange(change, value);
+    // Becoming visible again (or moving to another window): show the newest frame right away.
+    if ((change == ItemVisibleHasChanged && value.boolValue) || change == ItemSceneChange)
+        update();
+}
 
 void VideoItem::setZoom(double z)
 {

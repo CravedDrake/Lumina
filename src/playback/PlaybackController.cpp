@@ -23,6 +23,19 @@
 #include <QStandardPaths>
 #include <QUrl>
 #include <QUrlQuery>
+#include <QRegularExpression>
+#include <QTimer>
+#include <QHash>
+#include <QVector>
+#include <QColor>
+#include <QImage>
+#include <QLocale>
+#include <QVariant>
+#include <QStringList>
+#include <QMetaObject>
+#include <QObject>
+#include <QString>
+#include <QLatin1String>
 #include <cmath>
 
 Q_LOGGING_CATEGORY(lcPlayer, "lumina.player")
@@ -1004,6 +1017,13 @@ void PlaybackController::reapplyEngineState()
 
 // ===================================================================================== video
 
+void PlaybackController::setVideoSuspended(bool s)
+{
+    if (s == m_videoSuspendWanted) return;
+    m_videoSuspendWanted = s;
+    m_engine->setVideoSuspended(s && m_settings->getBool(QStringLiteral("performance/suspendVideoWhenHidden")));
+    emit videoSuspendedChanged();
+}
 void PlaybackController::setAspectMode(const QString &m) { if (m == m_aspect) return; m_aspect = m; emit videoLayoutChanged(); scheduleSavePrefs(); }
 void PlaybackController::setZoom(double z) { z = qBound(0.25, z, 8.0); if (qFuzzyCompare(z, m_zoom)) return; m_zoom = z; emit videoLayoutChanged(); scheduleSavePrefs(); }
 void PlaybackController::setVideoRotation(int r) { r = (((r % 360) + 360) % 360) / 90 * 90; if (r == m_rotation) return; m_rotation = r; emit videoLayoutChanged(); scheduleSavePrefs(); }

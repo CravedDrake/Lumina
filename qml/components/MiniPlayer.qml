@@ -9,7 +9,7 @@ Rectangle {
     radius: 14
     color: "#F2141824"
     border.color: Theme.borderStrong
-    visible: Player.active && !Actions.playerVisible
+    visible: Player.active && !Actions.playerVisible && !Actions.pipOpen
     RowLayout {
         anchors { fill: parent; leftMargin: 12; rightMargin: 10 }
         spacing: 10

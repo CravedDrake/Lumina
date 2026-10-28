@@ -5,4 +5,5 @@ import Lumina.Core
 VideoItem {
     source: Player.frameSource
     aspectMode: "auto"
+    maxFps: 10          // a 78-pixel thumbnail does not need 60 texture uploads per second
 }

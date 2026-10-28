@@ -1,7 +1,13 @@
 #pragma once
 
+#include <QElapsedTimer>
 #include <QPointer>
+#include <QTimer>
 #include <QQuickItem>
+#include <QRectF>
+#include <QSizeF>
+#include <QMetaObject>
+#include <QString>
 
 #include "VideoFrameSource.h"
 
@@ -26,6 +32,7 @@ class VideoItem : public QQuickItem {
     Q_PROPERTY(double panY READ panY WRITE setPanY NOTIFY layoutChanged)
     Q_PROPERTY(int videoRotation READ videoRotation WRITE setVideoRotation NOTIFY layoutChanged)
     Q_PROPERTY(bool flipHorizontal READ flipHorizontal WRITE setFlipHorizontal NOTIFY layoutChanged)
+    Q_PROPERTY(int maxFps READ maxFps WRITE setMaxFps NOTIFY maxFpsChanged)   // 0 = every frame; small previews use ~10
     Q_PROPERTY(bool hasFrame READ hasFrame NOTIFY hasFrameChanged)
     Q_PROPERTY(QRectF videoRect READ videoRect NOTIFY layoutChanged)
 public:
@@ -47,6 +54,8 @@ public:
     bool flipHorizontal() const { return m_flipH; }
     void setFlipHorizontal(bool f);
     bool hasFrame() const { return m_source && m_source->hasFrame(); }
+    int maxFps() const { return m_maxFps; }
+    void setMaxFps(int fps);
     QRectF videoRect() const;   // where the picture lands inside the item (item coordinates, before pan/zoom)
 
     /// Pure geometry helper (unit-tested): size of the picture inside an item of size `item`.
@@ -58,8 +67,10 @@ signals:
     void sourceChanged();
     void layoutChanged();
     void hasFrameChanged();
+    void maxFpsChanged();
 
 protected:
+    void itemChange(ItemChange change, const ItemChangeData &value) override;
     QSGNode *updatePaintNode(QSGNode *old, UpdatePaintNodeData *) override;
     void releaseResources() override;
 
@@ -69,6 +80,10 @@ private:
     double m_zoom = 1.0, m_panX = 0.0, m_panY = 0.0;
     int m_rotation = 0;
     bool m_flipH = false;
+    void requestUpdate();               // frame arrived: repaint only if somebody can see it
+    int m_maxFps = 0;
+    QElapsedTimer m_throttle;
+    QTimer m_trailing;                  // delivers the last skipped frame of a throttled item
     VideoFramePtr m_lastFrame;
     quint64 m_lastSeq = 0;
     QMetaObject::Connection m_frameConn, m_hasFrameConn;

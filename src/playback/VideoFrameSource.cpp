@@ -1,6 +1,8 @@
 #include "VideoFrameSource.h"
 
 #include <QMetaObject>
+#include <QSize>
+#include <QObject>
 #include <cstring>
 
 namespace lumina {
@@ -81,7 +83,11 @@ void VideoFrameSource::notifyGui()
             m_notifyPending = false;
             if (m_sizeDirty.exchange(false))
                 emit videoSizeChanged();
-            emit hasFrameChanged();
+            const bool hf = m_hasFrame.load();
+            if (hf != m_hasFrameShown) {      // only on a real change: QML bindings re-evaluate on every emit
+                m_hasFrameShown = hf;
+                emit hasFrameChanged();
+            }
             emit frameAvailable();
         },
         Qt::QueuedConnection);

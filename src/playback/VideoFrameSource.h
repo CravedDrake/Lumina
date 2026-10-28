@@ -98,6 +98,7 @@ private:
 
     std::atomic<bool> m_notifyPending{false};
     std::atomic<bool> m_hasFrame{false};
+    bool m_hasFrameShown = false;       // GUI thread only
     std::atomic<bool> m_sizeDirty{false};
     std::atomic<int> m_hintW{0};
     std::atomic<int> m_hintH{0};

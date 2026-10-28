@@ -48,6 +48,7 @@ ApplicationWindow {
         Player.shutdown()
         if (visibility === Window.Windowed) Settings.saveWindowState(x, y, width, height, false)
         else if (visibility === Window.Maximized) Settings.saveWindowState(x, y, width, height, true)
+        pip.saveGeometry()
         pip.visible = false
     }
 
@@ -59,7 +60,22 @@ ApplicationWindow {
             showFullScreen()
         }
     }
-    onVisibilityChanged: Actions.fullscreen = (visibility === Window.FullScreen)
+    property int lastShownVisibility: Window.Windowed
+    onVisibilityChanged: {
+        Actions.fullscreen = (visibility === Window.FullScreen)
+        if (visibility === Window.Windowed || visibility === Window.Maximized) lastShownVisibility = visibility
+    }
+
+    // Bring the big player back (from the mini player): un-minimise, raise, and show the video here again.
+    function restoreMain() {
+        Actions.pipOpen = false
+        Actions.playerVisible = true
+        if (visibility === Window.Minimized || visibility === Window.Hidden) {
+            if (lastShownVisibility === Window.Maximized) showMaximized(); else showNormal()
+        }
+        raise()
+        requestActivate()
+    }
 
     // ---------------------------------------------------------------- Actions wiring
     Connections {
@@ -87,7 +103,11 @@ ApplicationWindow {
         function onClassifyRequested(id) { classifyDialog.edit(id) }
         function onGoToTimeRequested() { gotoDialog.open() }
         function onFullscreenToggled() { win.toggleFullscreen() }
-        function onPipToggled() { Actions.pipOpen = !Actions.pipOpen }
+        function onPipToggled() {
+            if (!Player.active) return
+            if (!Actions.pipOpen && Actions.fullscreen) win.toggleFullscreen()
+            Actions.pipOpen = !Actions.pipOpen
+        }
         function onAlwaysOnTopToggled() { Actions.alwaysOnTop = !Actions.alwaysOnTop }
         function onExportPlaylistRequested(id) { exportPlaylistDialog.playlistId = id; exportPlaylistDialog.open() }
         function onSaveQueueRequested() { saveQueueDialog.open() }
@@ -96,6 +116,12 @@ ApplicationWindow {
     Connections { target: Player; function onMessage(t, l) { toasts.show(t, l) } function onScreenshotSaved(p) { toasts.show(qsTr("Screenshot saved: %1").arg(p), "success") } }
     Connections { target: Library; function onMessage(t, l) { toasts.show(t, l) } }
     Connections { target: App; function onMessage(t, l) { toasts.show(t, l) } }
+    Connections { target: Player; function onStateChanged() { if (!Player.active) Actions.pipOpen = false } }
+    // Nobody can see the picture (window minimised and no mini player): stop decoding video, keep the sound.
+    Binding {
+        target: Player; property: "videoSuspended"; delayed: true
+        value: !pip.visible && (win.visibility === Window.Minimized || win.visibility === Window.Hidden)
+    }
     Connections {
         target: Player
         function onMediaChanged() { if (Player.active && !Actions.playerVisible && Player.queue.count > 0 && Player.currentUrl.toString() !== "") { /* started from elsewhere */ } }
@@ -143,7 +169,7 @@ ApplicationWindow {
             if (Actions.fullscreen) toggleFullscreen(); else if (Actions.playerVisible) Actions.hidePlayer()
             break
         case "alwaysOnTop": Actions.alwaysOnTop = !Actions.alwaysOnTop; break
-        case "pip": if (Player.active) Actions.pipOpen = !Actions.pipOpen; break
+        case "pip": Actions.pipToggled(); break
         case "screenshot": if (Player.active) Player.takeScreenshot(); break
         case "mediaInfo": if (Player.active) Actions.infoRequested(Player.mediaInfoRows(), Player.title); break
         case "addBookmark": Player.addBookmark(""); break
@@ -342,45 +368,10 @@ ApplicationWindow {
         onAccepted: toasts.show(Player.saveQueueAsPlaylistFile(App.toLocalPath(selectedFile)) ? qsTr("Queue saved.") : qsTr("Could not write that file."), "info")
     }
 
-    // ---------------------------------------------------------------- picture-in-picture
-    Window {
+    // ---------------------------------------------------------------- mini player (own window)
+    PipWindow {
         id: pip
-        visible: Actions.pipOpen && Player.active
-        width: 420; height: 236
-        minimumWidth: 240; minimumHeight: 135
-        flags: Qt.Tool | Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint
-        color: "#000000"
-        title: "Lumina PiP"
-        onClosing: Actions.pipOpen = false
-        Rectangle { anchors.fill: parent; color: "#000000" }
-        VideoItem {
-            anchors.fill: parent
-            source: Player.frameSource
-            aspectMode: Player.aspectMode
-            zoom: Player.zoom
-            videoRotation: Player.videoRotation
-        }
-        MouseArea {
-            id: pipArea
-            anchors.fill: parent
-            hoverEnabled: true
-            onPressed: pip.startSystemMove()
-            onDoubleClicked: { Actions.pipOpen = false; Actions.showPlayer() }
-            onWheel: function(w) { Player.volumeStep(w.angleDelta.y > 0 ? 5 : -5) }
-        }
-        Row {
-            anchors { top: parent.top; right: parent.right; margins: 6 }
-            spacing: 4
-            opacity: pipArea.containsMouse ? 1 : 0
-            Behavior on opacity { NumberAnimation { duration: Theme.animFast } }
-            IconButton { iconName: Player.playing ? "pause" : "play"; iconColor: "#FFFFFF"; diameter: 30; iconSize: 16; tip: qsTr("Play / pause"); onClicked: Player.togglePause() }
-            IconButton { iconName: "fullscreen"; iconColor: "#FFFFFF"; diameter: 30; iconSize: 16; tip: qsTr("Back to player"); onClicked: { Actions.pipOpen = false; Actions.showPlayer() } }
-            IconButton { iconName: "close"; iconColor: "#FFFFFF"; diameter: 30; iconSize: 16; tip: qsTr("Close"); onClicked: Actions.pipOpen = false }
-        }
-        MouseArea {
-            width: 18; height: 18; anchors { right: parent.right; bottom: parent.bottom }
-            cursorShape: Qt.SizeFDiagCursor
-            onPressed: pip.startSystemResize(Qt.RightEdge | Qt.BottomEdge)
-        }
+        mainWindow: win
+        onRestoreRequested: win.restoreMain()
     }
 }

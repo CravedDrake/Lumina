@@ -5,6 +5,10 @@
 #include <QUrl>
 #include <QVariantList>
 #include <QVariantMap>
+#include <QSet>
+#include <QVector>
+#include <QStringList>
+#include <QString>
 
 #include "QueueModel.h"
 #include "VlcEngine.h"
@@ -26,6 +30,7 @@ class PlaybackController : public QObject {
     Q_OBJECT
     Q_PROPERTY(QString state READ stateName NOTIFY stateChanged)
     Q_PROPERTY(bool playing READ isPlaying NOTIFY stateChanged)
+    Q_PROPERTY(bool videoSuspended READ videoSuspended WRITE setVideoSuspended NOTIFY videoSuspendedChanged)   // UI: no window shows the picture
     Q_PROPERTY(bool active READ isActive NOTIFY stateChanged)            // something is loaded (any state but idle)
     Q_PROPERTY(bool busy READ isBusy NOTIFY stateChanged)                // opening / buffering
     Q_PROPERTY(qint64 positionMs READ positionMs NOTIFY positionChanged)
@@ -117,6 +122,8 @@ public:
     qint64 audioDelayMs() const { return m_engine->audioDelayMs(); }
     QString aspectMode() const { return m_aspect; }
     void setAspectMode(const QString &m);
+    bool videoSuspended() const { return m_engine->videoSuspended() || m_videoSuspendWanted; }
+    void setVideoSuspended(bool s);
     double zoom() const { return m_zoom; }
     void setZoom(double z);
     int videoRotation() const { return m_rotation; }
@@ -251,6 +258,7 @@ signals:
     void chaptersChanged();
     void delaysChanged();
     void videoLayoutChanged();
+    void videoSuspendedChanged();
     void adjustChanged();
     void resumePromptChanged();
     void detailsChanged();
@@ -319,6 +327,7 @@ private:
     QVariantMap m_details;
     QVariantMap m_adjust;
     QString m_aspect = QStringLiteral("auto");
+    bool m_videoSuspendWanted = false;
     double m_zoom = 1.0;
     int m_rotation = 0;
     QString m_deinterlace;

@@ -41,6 +41,7 @@ Item {
         aspectMode: Player.aspectMode
         zoom: Player.zoom
         videoRotation: Player.videoRotation
+        visible: !Actions.pipOpen            // the mini player shows the picture; do not draw it twice
     }
 
     // audio-only / no picture yet
@@ -50,6 +51,21 @@ Item {
         spacing: 12
         Icon { Layout.alignment: Qt.AlignHCenter; name: "music"; size: 64; color: Theme.textMuted }
         Text { Layout.alignment: Qt.AlignHCenter; text: Player.title; color: Theme.textDim; font.family: Theme.fontFamily; font.pixelSize: Theme.fsTitle }
+    }
+
+    // shown instead of the picture while the mini player window is open
+    Rectangle {
+        anchors.fill: parent
+        color: "#000000"
+        visible: Actions.pipOpen
+        ColumnLayout {
+            anchors.centerIn: parent
+            spacing: 14
+            Icon { Layout.alignment: Qt.AlignHCenter; name: "pip"; size: 56; color: Theme.textMuted }
+            Text { Layout.alignment: Qt.AlignHCenter; text: qsTr("Playing in mini player"); color: Theme.textDim; font.family: Theme.fontFamily; font.pixelSize: Theme.fsTitle }
+            Text { Layout.alignment: Qt.AlignHCenter; text: Player.title; elide: Text.ElideRight; Layout.maximumWidth: 520; color: Theme.textMuted; font.family: Theme.fontFamily; font.pixelSize: Theme.fsBody }
+            AppButton { Layout.alignment: Qt.AlignHCenter; iconName: "fullscreen"; text: qsTr("Bring video back here"); onClicked: Actions.pipToggled() }
+        }
     }
 
     // ------------------------------------------------------------------ input

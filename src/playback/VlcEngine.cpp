@@ -8,6 +8,15 @@
 #include <QLoggingCategory>
 #include <QMetaObject>
 #include <QRegularExpression>
+#include <QUrl>
+#include <QList>
+#include <QVector>
+#include <QSize>
+#include <QByteArray>
+#include <QStringList>
+#include <QObject>
+#include <QString>
+#include <QLatin1String>
 
 #include <cstdarg>
 #include <cstdio>
@@ -224,7 +233,38 @@ void VlcEngine::setState(State s)
     if (s == m_state)
         return;
     m_state = s;
+    if (s == State::Playing)
+        applyVideoSuspension();   // a new media starts with its video track enabled
     emit stateChanged(s);
+}
+
+void VlcEngine::setVideoSuspended(bool suspended)
+{
+    if (m_suspendRequested == suspended)
+        return;
+    m_suspendRequested = suspended;
+    applyVideoSuspension();
+}
+
+void VlcEngine::applyVideoSuspension()
+{
+    if (!m_player)
+        return;
+    if (m_suspendRequested && !m_videoSuspended) {
+        if (m_state != State::Playing && m_state != State::Paused)
+            return;                                  // tracks are not known yet; retried when playing starts
+        const int cur = libvlc_video_get_track(m_player);
+        if (cur < 0)
+            return;                                  // audio-only media: nothing to suspend
+        m_savedVideoTrack = cur;
+        libvlc_video_set_track(m_player, -1);
+        m_videoSuspended = true;
+    } else if (!m_suspendRequested && m_videoSuspended) {
+        m_videoSuspended = false;
+        if (m_savedVideoTrack >= 0)
+            libvlc_video_set_track(m_player, m_savedVideoTrack);
+        m_savedVideoTrack = -1;
+    }
 }
 
 // ---------------------------------------------------------------------------
@@ -337,6 +377,8 @@ bool VlcEngine::load(const QUrl &url, const QStringList &mediaOptions)
     m_timePending = false;
     m_lastTimeMs = 0;
     m_seekable = false;
+    m_videoSuspended = false;     // the new media enables its own video track
+    m_savedVideoTrack = -1;
     m_lastError.clear();
     m_frames->clear();
 

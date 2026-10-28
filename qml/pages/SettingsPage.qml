@@ -264,6 +264,7 @@ Item {
                     key: "performance/hwDecoding"; label: qsTr("Hardware decoding"); description: qsTr("“Automatic” lets libVLC use your GPU decoder when available and falls back to software. Applies to the next video you open.")
                     choices: [{ text: qsTr("Automatic"), value: "auto" }, { text: qsTr("Software only"), value: "none" }]
                 }
+                SwitchSetting { key: "performance/suspendVideoWhenHidden"; label: qsTr("Pause video decoding when nothing is visible"); description: qsTr("While Lumina is minimised (and the mini player is closed) only the sound is decoded. Saves a lot of CPU and battery; the picture resumes instantly when you come back.") }
                 SliderSetting { key: "performance/networkCacheMs"; label: qsTr("Network buffer"); description: qsTr("Larger values survive slow networks but add delay."); from: 300; to: 15000; step: 100; suffix: " ms" }
                 SectionTitle { text: qsTr("Thumbnails") }
                 SwitchSetting { key: "performance/thumbnails"; label: qsTr("Generate thumbnails from video frames") }

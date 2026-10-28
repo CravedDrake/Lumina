@@ -1,6 +1,11 @@
 #include "AppSettings.h"
 
 #include <QMetaType>
+#include <QSettings>
+#include <QVariant>
+#include <QStringList>
+#include <QObject>
+#include <QString>
 
 namespace lumina {
 
@@ -57,7 +62,15 @@ const QVariantMap &AppSettings::defaults()
         {QStringLiteral("mouse/doubleClickFullscreen"), true},
         {QStringLiteral("mouse/clickPause"), true},
         // Performance
+        #ifdef Q_OS_WIN
+        // GPU decoding combined with libVLC's software video callbacks is unstable on many Windows drivers
+        // (crashes on long 1080p/HEVC files), so software decoding is the default there.
+        {QStringLiteral("performance/hwDecoding"), QStringLiteral("none")},      // auto | none
+#else
         {QStringLiteral("performance/hwDecoding"), QStringLiteral("auto")},      // auto | none
+#endif
+        {QStringLiteral("performance/suspendVideoWhenHidden"), true},               // stop decoding video while no window shows it
+        {QStringLiteral("pip/geometry"), QString()},                                // JSON {x,y,w,h} of the mini player window
         {QStringLiteral("performance/networkCacheMs"), 1500},
         {QStringLiteral("performance/thumbnails"), true},
         {QStringLiteral("performance/thumbCacheMB"), 256},

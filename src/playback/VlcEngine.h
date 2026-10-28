@@ -81,6 +81,10 @@ public:
     void play();
     void pause();
     void togglePause();
+    /// Stop decoding/converting the video track while no window shows it (minimised, nothing visible).
+    /// Audio keeps playing. Re-enabled when `suspended` becomes false; also re-applied to the next media.
+    void setVideoSuspended(bool suspended);
+    bool videoSuspended() const { return m_videoSuspended; }
     void stop();
     void nextFrame();
     State state() const { return m_state; }
@@ -152,6 +156,7 @@ private:
     void detachEvents();
     void handleEvent(int type, float fArg, qint64 iArg, quint64 epoch);
     void setState(State s);
+    void applyVideoSuspension();
     void applyPlayerSettings();
     void releaseMedia();
 public:
@@ -169,6 +174,9 @@ private:
     std::atomic<bool> m_timePending{false};
     std::atomic<qint64> m_lastTimeMs{0};
     bool m_seekable = false;
+    bool m_suspendRequested = false;   // what the UI wants
+    bool m_videoSuspended = false;     // what is currently applied to the player
+    int m_savedVideoTrack = -1;
     bool createInstance(const QStringList &extraArgs);
     void destroyInstance();
     QStringList m_extraArgs;
