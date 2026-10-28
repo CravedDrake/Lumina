@@ -1,6 +1,13 @@
 #include "QueueModel.h"
 
 #include <QFileInfo>
+#include <QHash>
+#include <QVector>
+#include <QVariant>
+#include <QByteArray>
+#include <QAbstractListModel>
+#include <QModelIndex>
+#include <QObject>
 
 namespace lumina {
 

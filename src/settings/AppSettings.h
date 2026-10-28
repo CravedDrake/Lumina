@@ -3,6 +3,9 @@
 #include <QObject>
 #include <QSettings>
 #include <QVariantMap>
+#include <QVariant>
+#include <QStringList>
+#include <QString>
 
 namespace lumina {
 

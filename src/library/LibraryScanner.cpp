@@ -15,6 +15,12 @@
 #include <QSqlError>
 #include <QSqlQuery>
 #include <QThreadPool>
+#include <QDir>
+#include <QSqlDatabase>
+#include <QVector>
+#include <QByteArray>
+#include <QStringList>
+#include <QString>
 
 #include <memory>
 

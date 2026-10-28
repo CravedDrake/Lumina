@@ -6,6 +6,8 @@
 #include <QMutex>
 #include <QQuickAsyncImageProvider>
 #include <QThreadPool>
+#include <QSize>
+#include <QString>
 
 namespace lumina {
 

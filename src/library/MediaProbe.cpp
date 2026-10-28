@@ -3,6 +3,7 @@
 #include <vlc/vlc.h>
 
 #include <QDir>
+#include <QString>
 
 #include <condition_variable>
 #include <mutex>

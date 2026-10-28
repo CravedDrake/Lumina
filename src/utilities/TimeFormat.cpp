@@ -1,5 +1,6 @@
 #include "TimeFormat.h"
 #include <QRegularExpression>
+#include <QString>
 #include <cmath>
 
 namespace lumina {

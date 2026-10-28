@@ -11,6 +11,11 @@
 #include <QSqlQuery>
 #include <QThread>
 #include <QUuid>
+#include <QMutexLocker>
+#include <QSqlDatabase>
+#include <QStringList>
+#include <QString>
+#include <QLatin1String>
 
 Q_LOGGING_CATEGORY(lcDb, "lumina.db")
 

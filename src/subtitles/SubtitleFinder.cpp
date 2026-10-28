@@ -5,6 +5,9 @@
 #include <QFileInfo>
 #include <QMap>
 #include <QRegularExpression>
+#include <QVector>
+#include <QStringList>
+#include <QString>
 #include <algorithm>
 
 namespace lumina {

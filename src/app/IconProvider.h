@@ -1,6 +1,10 @@
 #pragma once
 
 #include <QQuickImageProvider>
+#include <QSize>
+#include <QImage>
+#include <QByteArray>
+#include <QString>
 
 namespace lumina {
 

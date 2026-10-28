@@ -6,6 +6,13 @@
 #include <QPainter>
 #include <QSvgRenderer>
 #include <QUrlQuery>
+#include <QMutexLocker>
+#include <QSize>
+#include <QImage>
+#include <QByteArray>
+#include <QRectF>
+#include <QString>
+#include <QChar>
 
 namespace lumina {
 

@@ -2,6 +2,7 @@
 
 #include <QString>
 #include <QVariantMap>
+#include <QLatin1String>
 
 namespace lumina {
 

@@ -19,6 +19,15 @@
 #include <QStandardPaths>
 #include <QThreadPool>
 #include <QTimer>
+#include <QUrl>
+#include <QJsonValue>
+#include <QByteArray>
+#include <QStringList>
+#include <QCoreApplication>
+#include <QFont>
+#include <QObject>
+#include <QString>
+#include <QLatin1String>
 
 #include "app/AppController.h"
 #include "app/IconProvider.h"

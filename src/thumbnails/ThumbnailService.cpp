@@ -6,6 +6,16 @@
 #include <QPointer>
 #include <QRunnable>
 #include <QUrlQuery>
+#include <QFile>
+#include <QDir>
+#include <QMutexLocker>
+#include <QSize>
+#include <QImage>
+#include <QByteArray>
+#include <QStringList>
+#include <QMetaObject>
+#include <QString>
+#include <QLatin1String>
 #include <algorithm>
 #include <atomic>
 #include <chrono>

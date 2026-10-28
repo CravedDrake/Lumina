@@ -5,6 +5,19 @@
 #include <QSqlError>
 #include <QSqlQuery>
 #include <QtConcurrent>
+#include <QSqlDatabase>
+#include <QHash>
+#include <QVector>
+#include <QVariant>
+#include <QByteArray>
+#include <QStringList>
+#include <QFutureWatcher>
+#include <QAbstractListModel>
+#include <QModelIndex>
+#include <QMetaObject>
+#include <QObject>
+#include <QString>
+#include <QLatin1String>
 
 namespace lumina {
 

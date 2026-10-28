@@ -13,6 +13,18 @@
 #include <QJsonObject>
 #include <QSqlError>
 #include <QSqlQuery>
+#include <QTimer>
+#include <QUrl>
+#include <QThread>
+#include <QSqlDatabase>
+#include <QList>
+#include <QVector>
+#include <QVariant>
+#include <QStringList>
+#include <QMetaObject>
+#include <QObject>
+#include <QString>
+#include <QLatin1String>
 
 namespace lumina {
 

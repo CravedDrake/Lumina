@@ -10,6 +10,12 @@
 #include <QQuickItem>
 #include <QQuickWindow>
 #include <QSet>
+#include <QJsonValue>
+#include <QHash>
+#include <QList>
+#include <QStringList>
+#include <QObject>
+#include <QString>
 
 namespace lumina {
 

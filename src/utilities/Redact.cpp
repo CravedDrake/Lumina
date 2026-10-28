@@ -1,6 +1,10 @@
 #include "Redact.h"
 #include <QRegularExpression>
 #include <QUrlQuery>
+#include <QUrl>
+#include <QList>
+#include <QStringList>
+#include <QString>
 
 namespace lumina {
 

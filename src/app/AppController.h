@@ -4,6 +4,7 @@
 #include <QStringList>
 #include <QUrl>
 #include <QVariantList>
+#include <QString>
 
 namespace lumina {
 

@@ -5,6 +5,17 @@
 #include <QDir>
 #include <QThread>
 #include <QTextStream>
+#include <QFile>
+#include <QMutexLocker>
+#include <QHash>
+#include <QList>
+#include <QVariant>
+#include <QByteArray>
+#include <QAbstractListModel>
+#include <QModelIndex>
+#include <QMetaObject>
+#include <QObject>
+#include <QString>
 #include <cstdio>
 
 Q_LOGGING_CATEGORY(lcApp, "lumina.app")

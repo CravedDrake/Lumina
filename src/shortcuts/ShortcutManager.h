@@ -3,6 +3,9 @@
 #include <QKeyCombination>
 #include <QObject>
 #include <QVariantList>
+#include <QList>
+#include <QStringList>
+#include <QString>
 
 namespace lumina {
 

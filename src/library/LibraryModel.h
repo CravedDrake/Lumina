@@ -3,6 +3,12 @@
 #include <QAbstractListModel>
 #include <QFutureWatcher>
 #include <QVector>
+#include <QHash>
+#include <QVariant>
+#include <QByteArray>
+#include <QModelIndex>
+#include <QObject>
+#include <QString>
 
 #include "MediaItem.h"
 

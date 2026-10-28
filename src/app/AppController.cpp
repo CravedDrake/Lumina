@@ -9,6 +9,11 @@
 #include <QSysInfo>
 #include <QDateTime>
 #include <QStandardPaths>
+#include <QUrl>
+#include <QVariant>
+#include <QStringList>
+#include <QObject>
+#include <QString>
 
 #include "library/LibraryManager.h"
 #include "playback/PlaybackController.h"

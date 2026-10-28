@@ -9,25 +9,43 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: ilammy/msvc-dev-cmd@v1
-      - uses: jurplel/install-qt-action@v4
-        with:
-          version: '6.5.3'
-          arch: win64_msvc2019_64
-          cache: true
-      - name: Download VLC 3.0.20 (win64 zip)
+      - name: Install Qt 6.5.3 (aqtinstall)
         shell: pwsh
         run: |
-          Invoke-WebRequest https://get.videolan.org/vlc/3.0.20/win64/vlc-3.0.20-win64.zip -OutFile vlc.zip
+          python -m pip install aqtinstall
+          python -m aqt install-qt windows desktop 6.5.3 win64_msvc2019_64 --outputdir "$env:RUNNER_TEMP\Qt"
+          "QT_DIR=$env:RUNNER_TEMP\Qt\6.5.3\msvc2019_64" | Out-File -FilePath $env:GITHUB_ENV -Append
+      - name: Download VLC (win64 zip)
+        shell: pwsh
+        run: |
+          $ua = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36"
+          $hosts = "https://download.videolan.org/pub/videolan/vlc", "https://get.videolan.org/vlc", "https://ftp.fau.de/videolan/vlc", "https://mirror.netcologne.de/videolan/vlc"
+          $versions = "3.0.21", "3.0.20"
+          $ok = $false
+          foreach ($v in $versions) {
+            foreach ($h in $hosts) {
+              $url = "$h/$v/win64/vlc-$v-win64.zip"
+              Write-Host "Trying $url"
+              curl.exe -L --fail --retry 3 --retry-delay 2 -A $ua -o vlc.zip $url
+              if ($LASTEXITCODE -eq 0 -and (Get-Item vlc.zip).Length -gt 50MB) { $ok = $true; break }
+            }
+            if ($ok) { break }
+          }
+          if (-not $ok) { throw "Could not download VLC from any mirror" }
           Expand-Archive vlc.zip -DestinationPath vlc
+          $dir = (Get-ChildItem vlc -Directory | Select-Object -First 1).FullName
+          "VLC_DIR=$dir" | Out-File -FilePath $env:GITHUB_ENV -Append
+          Get-ChildItem $dir | Select-Object -First 30 | ForEach-Object { $_.Name }
       - name: Install Ninja + Inno Setup
         run: choco install ninja innosetup -y --no-progress
       - name: Build, deploy, package
         shell: pwsh
         run: |
-          ./packaging/windows/build-windows.ps1 -QtDir "$env:QT_ROOT_DIR" -VlcDir "$PWD\vlc\vlc-3.0.20" -Version "0.1.0"
+          ./packaging/windows/build-windows.ps1 -QtDir "$env:QT_DIR" -VlcDir "$env:VLC_DIR" -Version "0.1.0"
       - uses: actions/upload-artifact@v4
         with:
           name: Lumina-Windows
+          if-no-files-found: error
           path: |
             dist/Lumina-*-Setup.exe
             dist/Lumina-portable.zip

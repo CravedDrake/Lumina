@@ -5,6 +5,12 @@
 #include <QObject>
 #include <QStringList>
 #include <QFile>
+#include <QHash>
+#include <QList>
+#include <QVariant>
+#include <QByteArray>
+#include <QModelIndex>
+#include <QString>
 #include <deque>
 
 Q_DECLARE_LOGGING_CATEGORY(lcApp)

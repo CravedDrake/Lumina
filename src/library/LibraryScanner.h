@@ -3,6 +3,7 @@
 #include <QObject>
 #include <QStringList>
 #include <QVariantMap>
+#include <QString>
 
 #include <atomic>
 

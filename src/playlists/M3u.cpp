@@ -4,6 +4,9 @@
 #include <QFile>
 #include <QFileInfo>
 #include <QUrl>
+#include <QVector>
+#include <QByteArray>
+#include <QString>
 
 namespace lumina::m3u {
 

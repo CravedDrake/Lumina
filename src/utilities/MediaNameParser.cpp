@@ -2,6 +2,8 @@
 
 #include <QFileInfo>
 #include <QRegularExpression>
+#include <QRegularExpressionMatch>
+#include <QString>
 
 namespace lumina {
 

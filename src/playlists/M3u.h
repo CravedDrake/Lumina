@@ -3,6 +3,7 @@
 #include <QString>
 #include <QStringList>
 #include <QVector>
+#include <QByteArray>
 
 namespace lumina::m3u {
 

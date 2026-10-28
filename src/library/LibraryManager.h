@@ -6,6 +6,8 @@
 #include <QUrl>
 #include <QVariantList>
 #include <QVariantMap>
+#include <QStringList>
+#include <QString>
 
 #include "LibraryScanner.h"
 
